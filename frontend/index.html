@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Academic Credential Verification — KFUPM-8d192376</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div>
+        <p class="eyebrow">ICS 440 · Group 7 · KFUPM-8d192376</p>
+        <h1>Academic Credential Verification</h1>
+      </div>
+
+      <div class="wallet-bar">
+        <span id="modeBadge" class="tag">Mock</span>
+        <span id="networkStatus" class="meta">Sepolia</span>
+        <span id="walletAddress" class="mono meta">Not connected</span>
+        <button id="connectBtn" class="btn">Connect wallet</button>
+      </div>
+    </header>
+
+    <div id="alertBox" class="notice hidden"></div>
+
+    <nav class="nav" aria-label="Views">
+      <button class="nav-btn active" data-tab="verifier">Verify</button>
+      <button class="nav-btn" data-tab="institution">Registrar</button>
+    </nav>
+
+    <!-- VERIFIER VIEW -->
+    <main id="verifier" class="view active">
+      <section class="block">
+        <div class="block-head">
+          <h2>Verify a credential</h2>
+          <p>Look up a credential ID on-chain and optionally enter the holder’s details to check the salted hash.</p>
+        </div>
+
+        <form id="verifyForm" class="grid">
+          <div class="field span-2">
+            <label for="verifyCredId">Credential ID</label>
+            <input id="verifyCredId" type="text" required placeholder="CRED-2026-001 or 0x..." />
+          </div>
+
+          <div class="field">
+            <label for="verifyStudentName">Student name</label>
+            <input id="verifyStudentName" type="text" placeholder="Optional" />
+          </div>
+
+          <div class="field">
+            <label for="verifyProgram">Degree program</label>
+            <input id="verifyProgram" type="text" placeholder="Optional" />
+          </div>
+
+          <div class="field">
+            <label for="verifyGradDate">Graduation date</label>
+            <input id="verifyGradDate" type="text" placeholder="YYYY-MM-DD" />
+          </div>
+
+          <div class="field">
+            <label for="verifyGpa">GPA</label>
+            <input id="verifyGpa" type="text" placeholder="e.g. 3.85" />
+          </div>
+
+          <div class="field span-2 row-actions">
+            <button type="submit" class="btn btn-dark">Check credential</button>
+            <button type="button" id="fillSampleValidBtn" class="btn btn-ghost">Load valid sample</button>
+            <button type="button" id="fillSampleTamperedBtn" class="btn btn-ghost">Load altered sample</button>
+            <button type="button" id="fillSampleInvalidBtn" class="btn btn-ghost">Load invalid sample</button>
+          </div>
+        </form>
+
+        <div id="verifyResult" class="output hidden"></div>
+      </section>
+    </main>
+
+    <!-- REGISTRAR VIEW -->
+    <main id="institution" class="view">
+      <section class="block">
+        <div class="block-head">
+          <h2>Issue credential</h2>
+          <p>Hashes the record with salt <code>8d192376</code> locally and stores only the <code>bytes32</code> digest on-chain.</p>
+        </div>
+
+        <form id="issueForm" class="grid">
+          <div class="field">
+            <label for="issueCredId">Credential ID</label>
+            <input id="issueCredId" type="text" required placeholder="CRED-2026-001" />
+          </div>
+
+          <div class="field">
+            <label for="issueHolder">Holder address</label>
+            <input id="issueHolder" type="text" required placeholder="0x..." />
+          </div>
+
+          <div class="field">
+            <label for="issueStudentName">Student name</label>
+            <input id="issueStudentName" type="text" required placeholder="Full name" />
+          </div>
+
+          <div class="field">
+            <label for="issueProgram">Degree program</label>
+            <input id="issueProgram" type="text" required placeholder="Group 7 assigned program" />
+          </div>
+
+          <div class="field">
+            <label for="issueGradDate">Graduation date</label>
+            <input id="issueGradDate" type="text" required placeholder="2026-06-15" />
+          </div>
+
+          <div class="field">
+            <label for="issueGpa">GPA</label>
+            <input id="issueGpa" type="text" required placeholder="3.85" />
+          </div>
+
+          <div class="field span-2 row-actions">
+            <button type="submit" class="btn btn-dark">Issue credential</button>
+            <button type="button" id="fillIssueSampleBtn" class="btn btn-ghost">Load valid sample</button>
+          </div>
+        </form>
+
+        <div id="issueResult" class="output hidden"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head">
+          <h2>Revoke credential</h2>
+          <p>Marks an issued credential as revoked while keeping its ledger history intact.</p>
+        </div>
+
+        <form id="revokeForm" class="grid">
+          <div class="field span-2">
+            <label for="revokeCredId">Credential ID</label>
+            <input id="revokeCredId" type="text" required placeholder="CRED-2026-001" />
+          </div>
+
+          <div class="field span-2 row-actions">
+            <button type="submit" class="btn btn-accent">Revoke credential</button>
+          </div>
+        </form>
+
+        <div id="revokeResult" class="output hidden"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="crypto.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
