@@ -37,7 +37,7 @@ async function refreshNetworkAndContract() {
   provider = new ethers.BrowserProvider(window.ethereum);
   const network = await provider.getNetwork();
 
-  if (network.chainId !== CONFIG.SEPOLIA_CHAIN_ID_DEC) {
+  if (network.chainId !== BigInt(CONFIG.SEPOLIA_CHAIN_ID_DEC)) {
     $("networkStatus").innerHTML = `<span class="badge badge-err">Wrong Network (${network.chainId})</span>`;
     showAlert("Please switch MetaMask to the Sepolia Test Network.");
     return;
@@ -48,6 +48,7 @@ async function refreshNetworkAndContract() {
   signer = await provider.getSigner();
   contract = new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONFIG.ABI, signer);
 }
+
 function disconnectWallet() {
   provider = null;
   signer = null;
@@ -86,14 +87,19 @@ async function toggleWalletConnection() {
 
 $("connectBtn").addEventListener("click", toggleWalletConnection);
 
-
 if (window.ethereum) {
   window.ethereum.on("accountsChanged", async (accounts) => {
-  currentAccount = accounts[0] || null;
-  $("walletAddress").textContent = currentAccount || "Not connected";
-  $("connectBtn").textContent = currentAccount ? "Disconnect" : "Connect MetaMask";
-  await refreshNetworkAndContract();
-});
+    currentAccount = accounts[0] || null;
+    $("walletAddress").textContent = currentAccount || "Not connected";
+    $("connectBtn").textContent = currentAccount ? "Disconnect" : "Connect MetaMask";
+    await refreshNetworkAndContract();
+  });
+
+  window.ethereum.on("chainChanged", async () => {
+    if (!CONFIG.USE_MOCK) {
+      await refreshNetworkAndContract();
+    }
+  });
 }
 
 // Issue Credential
@@ -129,7 +135,11 @@ $("issueForm").addEventListener("submit", async (e) => {
       return;
     }
 
-    if (!contract) await connectWallet();
+    if (!contract) {
+      await toggleWalletConnection();
+      if (!contract) throw new Error("Connect MetaMask on Sepolia before issuing.");
+    }
+
     out.textContent = "Waiting for MetaMask confirmation...";
     const tx = await contract.issueCredential(credIdBytes32, credHash, holder);
     out.textContent = `Transaction sent (${tx.hash}). Waiting for confirmation...`;
@@ -162,7 +172,11 @@ $("revokeForm").addEventListener("submit", async (e) => {
       return;
     }
 
-    if (!contract) await connectWallet();
+    if (!contract) {
+      await toggleWalletConnection();
+      if (!contract) throw new Error("Connect MetaMask on Sepolia before revoking.");
+    }
+
     out.textContent = "Waiting for MetaMask confirmation...";
     const tx = await contract.revokeCredential(credIdBytes32);
     out.textContent = `Transaction sent (${tx.hash}). Waiting for confirmation...`;
@@ -247,6 +261,7 @@ $("verifyForm").addEventListener("submit", async (e) => {
     out.innerHTML = `<span class="badge badge-err">Error</span> ${err.shortMessage || err.message}`;
   }
 });
+
 // Shared sample records (replace "Software Engineering" with your exact Appendix A index 2 program)
 const VALID_SAMPLE = {
   credId: "CRED-2026-001",
