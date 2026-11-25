@@ -3,76 +3,156 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#060b18" />
   <title>Academic Credential Verification — KFUPM-8d192376</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
   <div class="page">
     <header class="header">
-      <div>
-        <p class="eyebrow">ICS 440 · Group 7 · KFUPM-8d192376</p>
-        <h1>Academic Credential Verification</h1>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <div>
+          <p class="eyebrow">ICS 440 · Group 7 · KFUPM-8d192376</p>
+          <h1>Academic Credential Verification</h1>
+        </div>
       </div>
 
       <div class="wallet-bar">
         <span id="modeBadge" class="tag">Mock</span>
         <span id="networkStatus" class="meta">Sepolia</span>
         <span id="walletAddress" class="mono meta">Not connected</span>
-        <button id="connectBtn" class="btn">Connect wallet</button>
+        <button id="connectBtn" type="button" class="btn">Connect wallet</button>
       </div>
     </header>
 
-    <div id="alertBox" class="notice hidden"></div>
+    <div id="alertBox" class="notice hidden" role="alert"></div>
 
     <nav class="nav" aria-label="Views">
-      <button class="nav-btn active" data-tab="verifier">Verify</button>
-      <button class="nav-btn" data-tab="institution">Registrar</button>
+      <button type="button" class="nav-btn active" data-tab="verifier">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+        Verify
+      </button>
+      <button type="button" class="nav-btn" data-tab="institution">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 21h18"/></svg>
+        Registrar
+      </button>
     </nav>
 
     <!-- VERIFIER VIEW -->
     <main id="verifier" class="view active">
       <section class="block">
         <div class="block-head">
-          <h2>Verify a credential</h2>
-          <p>Look up a credential ID on-chain and optionally enter the holder’s details to check the salted hash.</p>
+          <div class="block-icon" aria-hidden="true">
+            <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          </div>
+          <div class="block-text">
+            <h2>Verify a credential</h2>
+            <p>Look up a credential ID on-chain and present holder details to verify the salted <code>keccak256</code> hash against Sepolia.</p>
+          </div>
         </div>
 
         <form id="verifyForm" class="grid">
           <div class="field span-2">
             <label for="verifyCredId">Credential ID</label>
-            <input id="verifyCredId" type="text" required placeholder="CRED-2026-001 or 0x..." />
+            <input id="verifyCredId" type="text" required placeholder="CRED-2026-001 or 0x..." autocomplete="off" spellcheck="false" />
           </div>
 
           <div class="field">
             <label for="verifyStudentName">Student name</label>
-            <input id="verifyStudentName" type="text" placeholder="Optional" />
+            <input id="verifyStudentName" type="text" placeholder="Optional for ID-only check" autocomplete="off" />
           </div>
 
           <div class="field">
             <label for="verifyProgram">Degree program</label>
-            <input id="verifyProgram" type="text" placeholder="Optional" />
+            <input id="verifyProgram" type="text" placeholder="Optional for ID-only check" autocomplete="off" />
           </div>
 
           <div class="field">
             <label for="verifyGradDate">Graduation date</label>
-            <input id="verifyGradDate" type="text" placeholder="YYYY-MM-DD" />
+            <input id="verifyGradDate" type="text" placeholder="YYYY-MM-DD" autocomplete="off" />
           </div>
 
           <div class="field">
             <label for="verifyGpa">GPA</label>
-            <input id="verifyGpa" type="text" placeholder="e.g. 3.85" />
+            <input id="verifyGpa" type="text" placeholder="e.g. 3.64" autocomplete="off" inputmode="decimal" />
           </div>
 
           <div class="field span-2 row-actions">
-            <button type="submit" class="btn btn-dark">Check credential</button>
+            <button type="submit" class="btn btn-dark">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+              Check credential
+            </button>
+            <span class="row-sep" aria-hidden="true"></span>
             <button type="button" id="fillSampleValidBtn" class="btn btn-ghost">Load valid sample</button>
             <button type="button" id="fillSampleTamperedBtn" class="btn btn-ghost">Load altered sample</button>
             <button type="button" id="fillSampleInvalidBtn" class="btn btn-ghost">Load invalid sample</button>
           </div>
         </form>
 
-        <div id="verifyResult" class="output hidden"></div>
+        <div id="verifyResult" class="output hidden" aria-live="polite"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head">
+          <div class="block-icon is-violet" aria-hidden="true">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+          </div>
+          <div class="block-text">
+            <h2>Scan, upload, or test QR payload</h2>
+            <p>
+              <strong>Why two QR modes matter:</strong> An <em>ID-only QR</em> reveals only the lookup ID so you supply claims separately; a <em>Full Transcript QR</em> includes claimed fields + a <code>?qr=</code> deep link so a phone camera or verifier can run a one-scan hash check—and editing any field in the payload immediately exposes tampering as a <strong>Hash Mismatch</strong>.
+            </p>
+          </div>
+        </div>
+
+        <div class="qr-controls">
+          <button type="button" id="startCameraQrBtn" class="btn btn-dark">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            Start camera scan
+          </button>
+          <button type="button" id="stopCameraQrBtn" class="btn btn-ghost" disabled>
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+            Stop camera
+          </button>
+          <label class="btn btn-ghost qr-file-btn" for="qrFileInput">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            Upload QR image
+          </label>
+          <input id="qrFileInput" type="file" accept="image/*" class="hidden" />
+        </div>
+
+        <div id="qrCameraWrapper" class="qr-camera-box hidden">
+          <video id="qrVideo" playsinline muted></video>
+          <canvas id="qrScanCanvas" class="hidden"></canvas>
+          <div class="scan-frame" aria-hidden="true"></div>
+        </div>
+
+        <div class="field" style="margin-top: 18px;">
+          <label for="qrManualPayloadInput">QR payload / deep link (edit a value like GPA to test tamper detection)</label>
+          <div class="qr-payload-row" style="margin-top: 0;">
+            <input
+              id="qrManualPayloadInput"
+              type="text"
+              placeholder='Paste QR JSON, ?qr=... URL, or CRED-2026-001'
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button type="button" id="applyQrPayloadBtn" class="btn btn-dark">Use payload</button>
+          </div>
+        </div>
+
+        <p id="qrStatusMessage" class="qr-status" aria-live="polite">Ready to scan a QR code, upload an image, or test a payload.</p>
       </section>
     </main>
 
@@ -80,70 +160,151 @@
     <main id="institution" class="view">
       <section class="block">
         <div class="block-head">
-          <h2>Issue credential</h2>
-          <p>Hashes the record with salt <code>8d192376</code> locally and stores only the <code>bytes32</code> digest on-chain.</p>
+          <div class="block-icon" aria-hidden="true">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z"/><path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/></svg>
+          </div>
+          <div class="block-text">
+            <h2>Issue credential</h2>
+            <p>Hashes the record with salt <code>8d192376</code> locally and stores only the <code>bytes32</code> digest on-chain.</p>
+          </div>
         </div>
 
         <form id="issueForm" class="grid">
           <div class="field">
             <label for="issueCredId">Credential ID</label>
-            <input id="issueCredId" type="text" required placeholder="CRED-2026-001" />
+            <input id="issueCredId" type="text" required placeholder="CRED-2026-001" autocomplete="off" spellcheck="false" />
           </div>
 
           <div class="field">
             <label for="issueHolder">Holder address</label>
-            <input id="issueHolder" type="text" required placeholder="0x..." />
+            <input id="issueHolder" type="text" required placeholder="0x..." autocomplete="off" spellcheck="false" />
           </div>
 
           <div class="field">
             <label for="issueStudentName">Student name</label>
-            <input id="issueStudentName" type="text" required placeholder="Full name" />
+            <input id="issueStudentName" type="text" required placeholder="Full name" autocomplete="off" />
           </div>
 
           <div class="field">
             <label for="issueProgram">Degree program</label>
-            <input id="issueProgram" type="text" required placeholder="Group 7 assigned program" />
+            <input id="issueProgram" type="text" required placeholder="Group 7 assigned program" autocomplete="off" />
           </div>
 
           <div class="field">
             <label for="issueGradDate">Graduation date</label>
-            <input id="issueGradDate" type="text" required placeholder="2026-06-15" />
+            <input id="issueGradDate" type="text" required placeholder="2027-05-15" autocomplete="off" />
           </div>
 
           <div class="field">
             <label for="issueGpa">GPA</label>
-            <input id="issueGpa" type="text" required placeholder="3.85" />
+            <input id="issueGpa" type="text" required placeholder="3.64" autocomplete="off" inputmode="decimal" />
           </div>
 
           <div class="field span-2 row-actions">
-            <button type="submit" class="btn btn-dark">Issue credential</button>
+            <button type="submit" class="btn btn-dark">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              Issue credential
+            </button>
+            <span class="row-sep" aria-hidden="true"></span>
             <button type="button" id="fillIssueSampleBtn" class="btn btn-ghost">Load valid sample</button>
           </div>
         </form>
 
-        <div id="issueResult" class="output hidden"></div>
+        <div id="issueResult" class="output hidden" aria-live="polite"></div>
       </section>
 
       <section class="block">
         <div class="block-head">
-          <h2>Revoke credential</h2>
-          <p>Marks an issued credential as revoked while keeping its ledger history intact.</p>
+          <div class="block-icon is-violet" aria-hidden="true">
+            <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg>
+          </div>
+          <div class="block-text">
+            <h2>Selective-disclosure QR generator</h2>
+            <p>Choose whether the QR code stays minimal (ID-only, no personal claims embedded) or acts as a zero-typing transcript deep link (<code>?qr=</code>) that verifies all fields in one scan.</p>
+          </div>
+        </div>
+
+        <div class="qr-mode-group" role="group" aria-label="QR Disclosure Mode">
+          <label class="qr-mode-option">
+            <input type="radio" name="qrMode" value="privacy" checked />
+            <span>
+              <strong>Privacy Mode (ID-Only)</strong>
+              <small>Encodes only <code>credId</code> + <code>instCode</code>; verifier enters fields manually.</small>
+            </span>
+          </label>
+
+          <label class="qr-mode-option">
+            <input type="radio" name="qrMode" value="transcript" />
+            <span>
+              <strong>Full Transcript QR (Zero-Typing + Deep Link)</strong>
+              <small>Encodes claimed fields + <code>?qr=</code> URL for instant 1-scan hash verification &amp; tamper testing.</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="qr-payload-row">
+          <input id="qrSourceCredId" type="text" placeholder="Credential ID (e.g., CRED-2026-001)" autocomplete="off" spellcheck="false" />
+          <button type="button" id="generateQrBtn" class="btn btn-dark">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg>
+            Generate QR
+          </button>
+          <button type="button" id="downloadQrBtn" class="btn btn-ghost" disabled>
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            Download PNG
+          </button>
+        </div>
+
+        <div id="qrModeExplanation" class="qr-mode-note">
+          <strong>Privacy Mode active:</strong> Only <code>credId</code> and <code>instCode</code> are inside the QR code—no student attributes are exposed in the QR payload.
+        </div>
+
+        <div class="qr-preview-box">
+          <div id="qrCodeCanvas"></div>
+          <div class="qr-meta-col">
+            <div class="qr-meta-label">Encoded QR Value</div>
+            <code id="qrPayloadText" class="mono">No QR code generated yet.</code>
+            <div id="qrDeepLinkWrap" class="hidden" style="margin-top: 14px;">
+              <div class="qr-meta-label">Mobile Camera Deep Link (<code>?qr=</code>)</div>
+              <a id="qrDeepLinkAnchor" class="mono qr-link" href="#" target="_blank" rel="noopener"></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="block-head">
+          <div class="block-icon is-danger" aria-hidden="true">
+            <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+          </div>
+          <div class="block-text">
+            <h2>Revoke credential</h2>
+            <p>Marks an issued credential as revoked while keeping its ledger history intact.</p>
+          </div>
         </div>
 
         <form id="revokeForm" class="grid">
           <div class="field span-2">
             <label for="revokeCredId">Credential ID</label>
-            <input id="revokeCredId" type="text" required placeholder="CRED-2026-001" />
+            <input id="revokeCredId" type="text" required placeholder="CRED-2026-001" autocomplete="off" spellcheck="false" />
           </div>
 
           <div class="field span-2 row-actions">
-            <button type="submit" class="btn btn-accent">Revoke credential</button>
+            <button type="submit" class="btn btn-accent">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+              Revoke credential
+            </button>
           </div>
         </form>
 
-        <div id="revokeResult" class="output hidden"></div>
+        <div id="revokeResult" class="output hidden" aria-live="polite"></div>
       </section>
     </main>
+
+    <footer class="footer">
+      <span>Secured by Ethereum Sepolia</span>
+      <span>·</span>
+      <span>Only salted hashes are stored on-chain</span>
+    </footer>
   </div>
 
   <script src="config.js"></script>
